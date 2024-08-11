@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Management</title>
+    <style>
+        body {
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+        .button {
+            background-color: yellow;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button.green {
+            background-color: green;
+            color: white;
+        }
+        .appointment {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calendar Management</h1>
+    <button class="button" id="run-now">Run Now</button>
+    <button class="button" id="show-pickups">Show Pick Ups</button>
+    <button class="button" id="coming-soon">Coming Soon</button>
+    <button class="button" id="force-now">Force Now</button>
+
+    <div id="output"></div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
