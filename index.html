@@ -25,6 +25,20 @@
         .appointment {
             margin: 10px 0;
         }
+        table.odds-table {
+            border-collapse: collapse;
+            margin: 10px 0 20px;
+            width: 100%;
+        }
+        table.odds-table th, table.odds-table td {
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+        table.odds-table th {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -35,6 +49,15 @@
     <button class="button" id="force-now">Force Now</button>
 
     <div id="output"></div>
+
+    <h1>Odds</h1>
+    <button class="button" id="odds-mlb">MLB</button>
+    <button class="button" id="odds-nfl">NFL</button>
+    <button class="button" id="odds-nba">NBA</button>
+    <button class="button" id="odds-nhl">NHL</button>
+    <button class="button green" id="odds-all">All Leagues</button>
+
+    <div id="odds-output"></div>
 
     <script src="./script.js"></script>
 </body>

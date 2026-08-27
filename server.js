@@ -5,6 +5,7 @@ const moment = require('moment-timezone');
 const cors = require('cors');
 const axios = require('axios');
 const Papa = require('papaparse');
+const { fetchLeagueOdds, fetchAllOdds, LEAGUE_EVENT_GROUPS } = require('./lib/draftkings');
 
 
 const auth = new GoogleAuth({
@@ -158,6 +159,31 @@ app.get('/runnow', async (req, res) => {
     } catch (error) {
         console.error('Error in runnow:', error);
         res.sendStatus(500);
+    }
+});
+
+app.get('/api/odds', async (req, res) => {
+    try {
+        const odds = await fetchAllOdds();
+        res.json(odds);
+    } catch (error) {
+        console.error('Error fetching odds:', error.message);
+        res.status(500).json({ error: 'Error fetching odds' });
+    }
+});
+
+app.get('/api/odds/:league', async (req, res) => {
+    const league = req.params.league.toLowerCase();
+    if (!LEAGUE_EVENT_GROUPS[league]) {
+        return res.status(400).json({ error: `Unsupported league "${league}". Supported: ${Object.keys(LEAGUE_EVENT_GROUPS).join(', ')}` });
+    }
+
+    try {
+        const games = await fetchLeagueOdds(league);
+        res.json(games);
+    } catch (error) {
+        console.error(`Error fetching ${league} odds:`, error.message);
+        res.status(500).json({ error: `Error fetching ${league} odds` });
     }
 });
 
