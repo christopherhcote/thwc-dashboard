@@ -35,3 +35,20 @@ Data sources: MLB Stats API, the NHL's public API, stats.nba.com (NBA has no off
 this is the same endpoint the community's `nba_api` package uses, and the most likely of the four
 to need adjustment if it changes), and nflverse's public GitHub-hosted CSVs for NFL. All are free
 and require no API key, but none are official supported APIs - treat this as best-effort.
+
+## Analytics
+
+Derived from the backfilled game logs (`lib/analytics.js`):
+- `GET /api/teams/:league/:teamId/summary?season=YYYY&lastN=10` - record (overall/home/away), scoring
+  averages, current streak, and form over the last N games.
+- `GET /api/matchup/:league?teamA=ID&teamB=ID&limit=20` - head-to-head game history and each team's
+  record in the series.
+
+`teamId` is this app's internal id from `GET /api/teams/:league`, not the league's own id.
+
+## Odds history
+
+Every `/api/odds` or `/api/odds/:league` call also appends a snapshot of what DraftKings returned into
+`odds_snapshots` (append-only - DK only exposes the current line, so this is how a line-movement
+history builds up over time; there's no way to backfill odds from before this table existed).
+`GET /api/odds-history/:league?team=name&sinceHours=24` reads it back.

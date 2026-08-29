@@ -55,3 +55,22 @@ CREATE TABLE IF NOT EXISTS ingest_progress (
     completed_at TEXT NOT NULL,
     PRIMARY KEY (league, season, external_game_id)
 );
+
+-- Append-only log of DraftKings odds pulls. DK's own event ids don't line up
+-- with our internal games table (different source, and we can't backfill
+-- odds history - DK only exposes the current line) so this just records
+-- team names/start time as DK reports them; each /api/odds call adds one
+-- row per game, building a line-movement history over time from here on.
+CREATE TABLE IF NOT EXISTS odds_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    league TEXT NOT NULL,
+    fetched_at TEXT NOT NULL,
+    external_game_id TEXT,
+    start_time TEXT,
+    home_team TEXT,
+    away_team TEXT,
+    moneyline TEXT,
+    spread TEXT,
+    total TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_odds_snapshots_lookup ON odds_snapshots(league, external_game_id, fetched_at);

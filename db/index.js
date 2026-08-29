@@ -114,6 +114,47 @@ function getBoxscore(gameId) {
     return { teamStats, playerStats };
 }
 
+function insertOddsSnapshot(league, game) {
+    db.prepare(`
+        INSERT INTO odds_snapshots (league, fetched_at, external_game_id, start_time, home_team, away_team, moneyline, spread, total)
+        VALUES (@league, datetime('now'), @externalGameId, @startTime, @homeTeam, @awayTeam, @moneyline, @spread, @total)
+    `).run({
+        league,
+        externalGameId: game.gameId !== undefined ? String(game.gameId) : null,
+        startTime: game.startTime || null,
+        homeTeam: game.homeTeam || null,
+        awayTeam: game.awayTeam || null,
+        moneyline: JSON.stringify(game.moneyline || null),
+        spread: JSON.stringify(game.spread || null),
+        total: JSON.stringify(game.total || null)
+    });
+}
+
+function getOddsSnapshots(league, { team, sinceHours } = {}) {
+    const clauses = ['league = ?'];
+    const params = [league];
+
+    if (team) {
+        clauses.push('(home_team LIKE ? OR away_team LIKE ?)');
+        params.push(`%${team}%`, `%${team}%`);
+    }
+    if (sinceHours) {
+        clauses.push("fetched_at >= datetime('now', ?)");
+        params.push(`-${Number(sinceHours)} hours`);
+    }
+
+    const rows = db.prepare(`
+        SELECT * FROM odds_snapshots WHERE ${clauses.join(' AND ')} ORDER BY fetched_at DESC
+    `).all(...params);
+
+    return rows.map(row => ({
+        ...row,
+        moneyline: JSON.parse(row.moneyline || 'null'),
+        spread: JSON.parse(row.spread || 'null'),
+        total: JSON.parse(row.total || 'null')
+    }));
+}
+
 module.exports = {
     db,
     upsertTeam,
@@ -124,5 +165,7 @@ module.exports = {
     markGameIngested,
     getGames,
     getTeams,
-    getBoxscore
+    getBoxscore,
+    insertOddsSnapshot,
+    getOddsSnapshots
 };
