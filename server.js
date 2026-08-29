@@ -11,9 +11,15 @@ const sportsDb = require('./db');
 const SUPPORTED_LEAGUES = new Set(['mlb', 'nfl', 'nba', 'nhl']);
 
 
+// Service account credentials come from GOOGLE_CREDENTIALS_JSON (the full
+// key file contents, as a string - set this in your hosting platform's
+// secrets) or, for local dev, a gitignored ./config.json copied from
+// config.example.json. Never commit the real file.
 const auth = new GoogleAuth({
-    keyFile: './config.json', 
-    scopes: ['https://www.googleapis.com/auth/calendar'], 
+    ...(process.env.GOOGLE_CREDENTIALS_JSON
+        ? { credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON) }
+        : { keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || './config.json' }),
+    scopes: ['https://www.googleapis.com/auth/calendar'],
 });
 
 const calendar = google.calendar({ version: 'v3', auth });
