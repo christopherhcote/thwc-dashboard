@@ -6,6 +6,9 @@ const cors = require('cors');
 const axios = require('axios');
 const Papa = require('papaparse');
 const { fetchLeagueOdds, fetchAllOdds, LEAGUE_EVENT_GROUPS } = require('./lib/draftkings');
+const sportsDb = require('./db');
+
+const SUPPORTED_LEAGUES = new Set(['mlb', 'nfl', 'nba', 'nhl']);
 
 
 const auth = new GoogleAuth({
@@ -185,6 +188,30 @@ app.get('/api/odds/:league', async (req, res) => {
         console.error(`Error fetching ${league} odds:`, error.message);
         res.status(500).json({ error: `Error fetching ${league} odds` });
     }
+});
+
+app.get('/api/teams/:league', (req, res) => {
+    const league = req.params.league.toLowerCase();
+    if (!SUPPORTED_LEAGUES.has(league)) {
+        return res.status(400).json({ error: `Unsupported league "${league}". Supported: ${[...SUPPORTED_LEAGUES].join(', ')}` });
+    }
+    res.json(sportsDb.getTeams(league));
+});
+
+app.get('/api/games/:league', (req, res) => {
+    const league = req.params.league.toLowerCase();
+    if (!SUPPORTED_LEAGUES.has(league)) {
+        return res.status(400).json({ error: `Unsupported league "${league}". Supported: ${[...SUPPORTED_LEAGUES].join(', ')}` });
+    }
+    res.json(sportsDb.getGames(league, req.query.season));
+});
+
+app.get('/api/games/:league/:gameId/boxscore', (req, res) => {
+    const league = req.params.league.toLowerCase();
+    if (!SUPPORTED_LEAGUES.has(league)) {
+        return res.status(400).json({ error: `Unsupported league "${league}". Supported: ${[...SUPPORTED_LEAGUES].join(', ')}` });
+    }
+    res.json(sportsDb.getBoxscore(req.params.gameId));
 });
 
 app.post('/addEvent', async (req, res) => {
