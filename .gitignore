@@ -2,4 +2,3 @@ node_modules/
 data/*.db
 data/*.db-wal
 data/*.db-shm
-config.json
